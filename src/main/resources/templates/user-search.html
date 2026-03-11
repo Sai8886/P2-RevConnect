@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Find People — RevConnect</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+</head>
+<body>
+
+<nav class="topbar">
+    <a class="topbar-brand" th:href="@{/feed(userId=${userId})}">RevConnect</a>
+    <div class="topbar-actions">
+        <a class="topbar-btn" th:href="@{/feed(userId=${userId})}">🏠 Feed</a>
+    </div>
+</nav>
+
+<div style="max-width:680px;margin:24px auto;padding:0 20px;">
+
+    <h2 style="font-size:20px;font-weight:700;margin-bottom:16px;">🔍 Find People</h2>
+
+    <!-- Search form -->
+    <div class="card" style="margin-bottom:16px;">
+        <div class="card-body">
+            <form th:action="@{/users/search}" method="get">
+                <input type="hidden" name="userId" th:value="${userId}"/>
+                <div style="display:flex;gap:10px;">
+                    <input class="form-control" type="text" name="keyword"
+                           th:value="${keyword}"
+                           placeholder="Search by username or email…" style="flex:1;"/>
+                    <button class="btn btn-primary" type="submit">Search</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Results -->
+    <div th:if="${noResults}" class="alert alert-info">
+        No users found for "<span th:text="${keyword}"></span>".
+    </div>
+
+    <div class="card" th:if="${results != null and !#lists.isEmpty(results)}">
+        <div class="card-header" th:text="${#lists.size(results)} + ' result(s) for &quot;' + ${keyword} + '&quot;'">Results</div>
+
+        <div class="follow-item" th:each="user : ${results}">
+            <div class="avatar-sm"
+                 th:text="${user.userName != null ? user.userName.substring(0,1) : 'U'}">U</div>
+            <div class="info">
+                <div class="name" th:text="${user.userName}">Username</div>
+                <div class="sub" th:text="${user.email}">email@example.com</div>
+            </div>
+            <div style="display:flex;gap:8px;">
+                <a class="btn btn-outline btn-sm"
+                   th:href="@{/profile(userId=${userId}, targetUserId=${user.userId})}">View Profile</a>
+                <form th:action="@{/follow/{id}(id=${user.userId})}" method="post" style="display:inline;">
+                    <input type="hidden" name="userId" th:value="${userId}"/>
+                    <input type="hidden" name="redirectTo"
+                           th:value="@{/users/search(userId=${userId}, keyword=${keyword})}"/>
+                    <button type="submit" class="follow-btn">Follow</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+</div>
+</body>
+</html>

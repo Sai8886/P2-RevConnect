@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:fragment="layout(title, content, userId)">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title th:text="${title} + ' — RevConnect'">RevConnect</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<nav class="topbar">
+    <a class="topbar-brand" th:href="@{/feed(userId=${userId})}">RevConnect</a>
+
+    <form class="topbar-search" th:action="@{/feed/search}" method="get">
+        <input type="hidden" name="userId" th:value="${userId}"/>
+        <input type="text" name="keyword" placeholder="Search posts or #hashtags…"
+               th:value="${searchKeyword}"/>
+        <button type="submit">Search</button>
+    </form>
+
+    <div class="topbar-actions">
+        <a class="topbar-btn" th:href="@{/users/search(userId=${userId})}">🔍 Users</a>
+        <a class="topbar-btn" th:href="@{/notifications(userId=${userId})}">
+            🔔
+            <span class="notif-badge" th:if="${unreadNotifications != null and unreadNotifications > 0}"
+                  th:text="${unreadNotifications}"></span>
+        </a>
+        <a class="topbar-btn primary" th:href="@{/posts/create(userId=${userId})}">+ Post</a>
+        <a class="topbar-btn" th:href="@{/logout}">Logout</a>
+    </div>
+</nav>
+
+<!-- PAGE CONTENT injected via fragment -->
+<div th:replace="${content}"><!-- page body --></div>
+
+<script>
+    // CSS-only like animation enhancement: add class on click for form-submit likes
+    document.querySelectorAll('.action-btn[data-like]').forEach(btn => {
+        btn.addEventListener('click', function () {
+            this.classList.add('like-animate');
+        });
+    });
+</script>
+</body>
+</html>

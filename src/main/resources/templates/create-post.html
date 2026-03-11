@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>New Post — RevConnect</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+</head>
+<body>
+
+<nav class="topbar">
+    <a class="topbar-brand" th:href="@{/feed(userId=${userId})}">RevConnect</a>
+    <div class="topbar-actions">
+        <a class="topbar-btn" th:href="@{/feed(userId=${userId})}">← Back to Feed</a>
+    </div>
+</nav>
+
+<div style="max-width:640px;margin:32px auto;padding:0 20px;">
+
+    <div class="alert alert-danger" th:if="${errorMessage}" th:text="${errorMessage}"></div>
+
+    <div class="card">
+        <div class="card-header">✏️ Create a New Post</div>
+        <div class="card-body">
+            <form th:action="@{/posts/create}" method="post">
+                <input type="hidden" name="userId" th:value="${userId}"/>
+
+                <div class="form-group">
+                    <label class="form-label" for="content">What's on your mind?</label>
+                    <textarea class="form-control" id="content" name="content"
+                              rows="5" placeholder="Share something with your network…"
+                              required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="hashtag">Hashtag</label>
+                    <input class="form-control" type="text" id="hashtag" name="hashtag"
+                           placeholder="#topic"/>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="imageUrl">Image URL (optional)</label>
+                    <input class="form-control" type="url" id="imageUrl" name="imageUrl"
+                           placeholder="https://example.com/image.jpg"/>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="scheduledAt">Schedule Post (optional)</label>
+                    <input class="form-control" type="datetime-local" id="scheduledAt" name="scheduledAt"/>
+                </div>
+
+                <!-- Business/Creator only: CTA and Product fields -->
+                <div th:if="${accountType == 'BUSINESS'}">
+                <details style="margin-bottom:16px;">
+                    <summary style="cursor:pointer;font-weight:600;font-size:14px;color:var(--text-secondary);">
+                        ⚡ Advanced Options (Business / Creator accounts)
+                    </summary>
+                    <div style="margin-top:14px;">
+                        <div class="form-group">
+                            <label class="form-label" for="ctaLabel">CTA Button Label</label>
+                            <input class="form-control" type="text" id="ctaLabel" name="ctaLabel"
+                                   placeholder="e.g. Shop Now"/>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="ctaLink">CTA Button URL</label>
+                            <input class="form-control" type="url" id="ctaLink" name="ctaLink"
+                                   placeholder="https://yourstore.com"/>
+                        </div>
+	                        <div th:if="${accountType == 'BUSINESS'}">
+	                        	<div class="form-group">
+		                            <label class="form-label" for="productName">Product Name</label>
+		                            <input class="form-control" type="text" id="productName" name="productName"
+		                                   placeholder="Product name"/>
+	                       		</div>
+	                        <div class="form-group">
+	                            <label class="form-label" for="productLink">Product Link</label>
+	                            <input class="form-control" type="url" id="productLink" name="productLink"
+	                                   placeholder="https://product-url.com"/>
+	                        </div>
+                        
+                        </div>
+
+                    </div>
+                </details>
+                </div>
+
+                <div style="display:flex;gap:10px;justify-content:flex-end;">
+                    <a class="btn btn-outline" th:href="@{/feed(userId=${userId})}">Cancel</a>
+                    <button class="btn btn-primary" type="submit">Publish Post</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

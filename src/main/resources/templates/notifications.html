@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Notifications — RevConnect</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+</head>
+<body>
+
+<nav class="topbar">
+    <a class="topbar-brand" th:href="@{/feed(userId=${userId})}">RevConnect</a>
+    <div class="topbar-actions">
+        <a class="topbar-btn" th:href="@{/feed(userId=${userId})}">🏠 Feed</a>
+        <a class="topbar-btn" th:href="@{/logout}">Logout</a>
+    </div>
+</nav>
+
+<div style="max-width:680px;margin:24px auto;padding:0 20px;">
+
+    <div class="alert alert-success" th:if="${successMessage}" th:text="${successMessage}"></div>
+
+    <!-- Header row -->
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+        <h2 style="font-size:20px;font-weight:700;">
+            🔔 Notifications
+            <span class="notif-badge" style="font-size:13px;margin-left:8px;"
+                  th:if="${unreadCount > 0}" th:text="${unreadCount}"></span>
+        </h2>
+        <form th:action="@{/notifications/read-all}" method="post">
+            <input type="hidden" name="userId" th:value="${userId}"/>
+            <button type="submit" class="btn btn-outline btn-sm"
+                    th:if="${unreadCount > 0}">Mark all as read</button>
+        </form>
+    </div>
+
+    <div class="card">
+        <div th:if="${notifications == null or #lists.isEmpty(notifications)}"
+             class="empty-state">
+            <div class="icon">🔔</div>
+            <p>You have no notifications yet.</p>
+        </div>
+
+        <!-- Notification list via th:each -->
+        <div class="notification-item"
+             th:each="notif : ${notifications}"
+             th:classappend="${!notif.read} ? 'unread' : ''">
+
+            <div class="avatar-sm" style="background:var(--accent-light);color:var(--accent);">
+                <span th:switch="${notif.type}">
+                    <span th:case="'LIKE'">❤️</span>
+                    <span th:case="'COMMENT'">💬</span>
+                    <span th:case="'FOLLOW'">👤</span>
+                    <span th:case="'SHARE'">↗️</span>
+                    <span th:case="'CONNECTION_REQUEST'">🤝</span>
+                    <span th:case="'CONNECTION_ACCEPTED'">✅</span>
+                    <span th:case="*">🔔</span>
+                </span>
+            </div>
+
+            <div class="notif-body">
+                <div class="notif-msg" th:text="${notif.message}">Notification message</div>
+                <div style="display:flex;align-items:center;gap:8px;margin-top:4px;">
+                    <span class="notif-type" th:text="${notif.type}">TYPE</span>
+                    <span class="notif-time"
+                          th:text="${notif.createdAt != null ? #temporals.format(notif.createdAt, 'MMM d, h:mm a') : ''}"></span>
+                </div>
+            </div>
+
+            <!-- Mark as read button -->
+            <form th:if="${!notif.read}"
+                  th:action="@{/notifications/{id}/read(id=${notif.notificationId})}"
+                  method="post">
+                <input type="hidden" name="userId" th:value="${userId}"/>
+                <button type="submit" class="btn btn-outline btn-sm">✓</button>
+            </form>
+
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>

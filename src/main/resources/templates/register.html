@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Register — RevConnect</title>
+<link rel="stylesheet" th:href="@{/css/style.css}"/>
+
+<script>
+function toggleFields() {
+    let type = document.getElementById("accountType").value;
+
+    document.getElementById("creatorFields").style.display = "none";
+    document.getElementById("businessFields").style.display = "none";
+
+    if(type === "CREATOR"){
+        document.getElementById("creatorFields").style.display = "block";
+    }
+
+    if(type === "BUSINESS"){
+        document.getElementById("businessFields").style.display = "block";
+    }
+}
+</script>
+
+</head>
+
+<body>
+<div class="auth-container">
+<div class="auth-card" style="max-width:520px;">
+<div class="auth-logo">Create Account</div>
+<p class="auth-tagline">Join RevConnect today.</p>
+
+<div class="alert alert-danger" th:if="${errorMessage}" th:text="${errorMessage}"></div>
+
+<form th:action="@{/register}" method="post" th:object="${user}">
+
+<div class="form-group">
+<label class="form-label">Username</label>
+<input class="form-control" type="text" name="userName"
+th:value="*{userName}" placeholder="yourname" required/>
+</div>
+
+<div class="form-group">
+<label class="form-label">Email</label>
+<input class="form-control" type="email" name="email"
+th:value="*{email}" placeholder="you@example.com" required/>
+</div>
+
+<div class="form-group">
+<label class="form-label">Password</label>
+<input class="form-control" type="password" name="password"
+placeholder="Choose a strong password" required/>
+</div>
+
+<div class="form-group">
+<label class="form-label">Account Type</label>
+<select class="form-control" id="accountType" name="accountType" onchange="toggleFields()" required>
+<option value="">— Select type —</option>
+<option th:each="type : ${accountTypes}"
+th:value="${type}"
+th:text="${type}"></option>
+</select>
+</div>
+
+
+<!-- CREATOR FIELDS -->
+<div id="creatorFields" style="display:none;">
+
+<div class="form-group">
+<label class="form-label">Creator Name</label>
+<input class="form-control" type="text" name="creatorName"/>
+</div>
+
+<div class="form-group">
+<label class="form-label">Category / Industry</label>
+<input class="form-control" type="text" name="category"/>
+</div>
+
+<div class="form-group">
+<label class="form-label">Detailed Bio</label>
+<textarea class="form-control" name="bio"></textarea>
+</div>
+
+<div class="form-group">
+<label class="form-label">Contact Information</label>
+<input class="form-control" type="text" name="contactInfo"/>
+</div>
+
+<div class="form-group">
+<label class="form-label">Website</label>
+<input class="form-control" type="text" name="websiteLink"/>
+</div>
+
+<div class="form-group">
+<label class="form-label">Social Media Links</label>
+<input class="form-control" type="text" name="socialLink"/>
+</div>
+
+</div>
+
+
+<!-- BUSINESS FIELDS -->
+<div id="businessFields" style="display:none;">
+
+<div class="form-group">
+<label class="form-label">Business Name</label>
+<input class="form-control" type="text" name="businessName"/>
+</div>
+
+<div class="form-group">
+<label class="form-label">Category / Industry</label>
+<input class="form-control" type="text" name="category"/>
+</div>
+
+<div class="form-group">
+<label class="form-label">Detailed Bio</label>
+<textarea class="form-control" name="bio"></textarea>
+</div>
+
+<div class="form-group">
+<label class="form-label">Contact Information</label>
+<input class="form-control" type="text" name="contactInfo"/>
+</div>
+
+<div class="form-group">
+<label class="form-label">Website</label>
+<input class="form-control" type="text" name="websiteLink"/>
+</div>
+
+<div class="form-group">
+<label class="form-label">Social Media Links</label>
+<input class="form-control" type="text" name="socialLink"/>
+</div>
+
+<div class="form-group">
+<label class="form-label">Business Address</label>
+<input class="form-control" type="text" name="businessAddress"/>
+</div>
+
+<div class="form-group">
+<label class="form-label">Business Hours</label>
+<input class="form-control" type="text" name="businessHours"/>
+</div>
+
+</div>
+
+
+<div class="form-group">
+<label class="form-label">Security Question</label>
+<select class="form-control" name="securityQuestion" required>
+<option value="">— Select a question —</option>
+<option th:each="sq : ${securityQuestions}"
+th:value="${sq}"
+th:text="${sq.question}"></option>
+</select>
+</div>
+
+<div class="form-group">
+<label class="form-label">Security Answer</label>
+<input class="form-control" type="text" name="securityAnswer" required/>
+</div>
+
+<button class="btn btn-primary" type="submit" style="width:100%;margin-top:8px;">
+Create Account
+</button>
+
+</form>
+
+<div class="auth-divider">or</div>
+
+<div style="text-align:center;font-size:14px;color:var(--text-secondary);">
+Already have an account?
+<a th:href="@{/login}" style="font-weight:600;">Log In</a>
+</div>
+
+</div>
+</div>
+
+</body>
+</html>

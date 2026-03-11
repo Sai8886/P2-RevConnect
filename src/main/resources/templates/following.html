@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Following — RevConnect</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+</head>
+<body>
+
+<nav class="topbar">
+    <a class="topbar-brand" th:href="@{/feed(userId=${userId})}">RevConnect</a>
+    <div class="topbar-actions">
+        <a class="topbar-btn" th:href="@{/profile(userId=${userId})}">← Profile</a>
+    </div>
+</nav>
+
+<div style="max-width:600px;margin:24px auto;padding:0 20px;">
+
+    <h2 style="font-size:20px;font-weight:700;margin-bottom:16px;">
+        ➕ Following
+        <span style="font-weight:400;color:var(--text-muted);font-size:16px;"
+              th:text="'(' + ${followingCount} + ')'"></span>
+    </h2>
+
+    <div class="card">
+        <div th:if="${following == null or #lists.isEmpty(following)}" class="empty-state">
+            <div class="icon">➕</div>
+            <p>You're not following anyone yet.</p>
+            <a class="btn btn-primary" style="margin-top:14px;"
+               th:href="@{/users/search(userId=${userId})}">Find People</a>
+        </div>
+
+        <div class="follow-item" th:each="follow : ${following}">
+            <div class="avatar-sm"
+                 th:text="${follow.followingName != null ? follow.followingName.substring(0,1) : 'U'}">U</div>
+            <div class="info">
+                <div class="name" th:text="${follow.followingName}">Name</div>
+                <div class="sub">Following</div>
+            </div>
+            <div style="display:flex;gap:8px;">
+                <a class="btn btn-outline btn-sm"
+                   th:href="@{/profile(userId=${userId}, targetUserId=${follow.followingId})}">View</a>
+                <form th:action="@{/follow/{tid}/unfollow(tid=${follow.followingId})}" method="post"
+                      style="display:inline;">
+                    <input type="hidden" name="userId" th:value="${userId}"/>
+                    <button type="submit" class="btn btn-outline btn-sm"
+                            style="color:var(--danger);border-color:var(--danger);">Unfollow</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+</div>
+</body>
+</html>

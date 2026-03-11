@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Saved Posts — RevConnect</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+</head>
+<body>
+
+<nav class="topbar">
+    <a class="topbar-brand" th:href="@{/feed(userId=${userId})}">RevConnect</a>
+    <div class="topbar-actions">
+        <a class="topbar-btn" th:href="@{/feed(userId=${userId})}">🏠 Feed</a>
+        <a class="topbar-btn" th:href="@{/logout}">Logout</a>
+    </div>
+</nav>
+
+<div style="max-width:680px;margin:24px auto;padding:0 20px;">
+
+    <h2 style="font-size:20px;font-weight:700;margin-bottom:16px;">🔖 Saved Posts</h2>
+
+    <div th:if="${posts == null or #lists.isEmpty(posts)}" class="card">
+        <div class="empty-state">
+            <div class="icon">🔖</div>
+            <p>You haven't saved any posts yet.</p>
+            <a class="btn btn-primary" style="margin-top:14px;"
+               th:href="@{/feed(userId=${userId})}">Browse Feed</a>
+        </div>
+    </div>
+
+    <!-- Saved post cards via th:each -->
+    <div class="post-card" th:each="post : ${posts}" th:id="'post-' + ${post.postId}">
+        <div class="post-header">
+            <div class="avatar-sm"
+                 th:text="${post.userName != null ? post.userName.substring(0,1) : 'U'}">U</div>
+            <div class="post-header-info">
+                <div class="post-author" th:text="${post.userName}">Username</div>
+                <div class="post-time"
+                     th:text="${post.createdAt != null ? #temporals.format(post.createdAt, 'MMM d, yyyy · h:mm a') : ''}"></div>
+            </div>
+        </div>
+
+        <div class="post-body">
+            <img class="post-image"
+                 th:if="${post.imageUrl != null and !post.imageUrl.isEmpty()}"
+                 th:src="${post.imageUrl}" th:alt="${post.content}"/>
+            <p class="post-content" th:text="${post.content}">Post content</p>
+            <a class="post-hashtag"
+               th:if="${post.hashtag != null and !post.hashtag.isEmpty()}"
+               th:href="@{/feed/search(keyword=${post.hashtag}, userId=${userId})}"
+               th:text="${post.hashtag}"></a>
+        </div>
+
+        <div class="post-actions">
+            <a class="action-btn" th:href="@{/posts/{id}(id=${post.postId}, userId=${userId})}">
+                👁 View
+            </a>
+            <form th:action="@{/posts/{id}/save(id=${post.postId})}" method="post"
+                  style="display:inline;">
+                <input type="hidden" name="userId" th:value="${userId}"/>
+                <button type="submit" class="action-btn" style="color:var(--danger);">
+                    🗑 Unsave
+                </button>
+            </form>
+        </div>
+    </div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Share Post — RevConnect</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+    <style>
+        .share-layout { max-width: 600px; margin: 28px auto; padding: 0 18px; display: flex; flex-direction: column; gap: 16px; }
+        .preview-card { background: #fff; border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
+        .preview-header { padding: 12px 16px; border-bottom: 1px solid var(--border); font-size: 13px; font-weight: 600; color: var(--text-secondary); }
+        .post-snippet { padding: 14px 16px; display: flex; gap: 12px; align-items: flex-start; }
+        .post-snippet-body { flex: 1; }
+        .post-snippet-author { font-weight: 700; font-size: 14px; margin-bottom: 3px; }
+        .post-snippet-text { font-size: 14px; color: var(--text-secondary); line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .caption-card { background: #fff; border-radius: var(--radius); box-shadow: var(--shadow); padding: 16px; }
+        .caption-card label { font-size: 13px; font-weight: 700; color: var(--text-secondary); display: block; margin-bottom: 8px; }
+        #captionInput { width: 100%; border: 1.5px solid var(--border); border-radius: 10px; padding: 10px 14px; font-family: var(--font); font-size: 14px; resize: none; outline: none; box-sizing: border-box; }
+        #captionInput:focus { border-color: var(--accent); }
+        .options-card { background: #fff; border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
+        .options-header { padding: 14px 18px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+        .options-title { font-weight: 700; font-size: 15px; }
+        .share-tabs { display: flex; border-bottom: 1px solid var(--border); }
+        .share-tab { flex: 1; padding: 12px; text-align: center; font-size: 14px; font-weight: 600; color: var(--text-secondary); cursor: pointer; border-bottom: 2px solid transparent; transition: all .2s; }
+        .share-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+        .people-search { display: flex; align-items: center; gap: 8px; padding: 10px 16px; border-bottom: 1px solid var(--border); background: var(--bg); }
+        .people-search input { flex: 1; border: none; background: transparent; font-family: var(--font); font-size: 14px; outline: none; }
+        .target-list { max-height: 380px; overflow-y: auto; }
+        .target-row { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-bottom: 1px solid var(--border); transition: background .15s; }
+        .target-row:last-child { border-bottom: none; }
+        .target-row:hover { background: var(--bg); }
+        .target-info { flex: 1; min-width: 0; }
+        .target-name { font-weight: 600; font-size: 14px; }
+        .target-handle { font-size: 12px; color: var(--text-muted); margin-top: 1px; }
+        .target-badge { font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 20px; text-transform: uppercase; }
+        .badge-personal { background: #e8f5e9; color: #2e7d32; }
+        .badge-creator  { background: #fff3e0; color: #e65100; }
+        .badge-business { background: #e3f2fd; color: #1565c0; }
+        .send-btn { background: var(--accent); color: #fff; border: none; border-radius: 20px; padding: 7px 18px; font-family: var(--font); font-size: 13px; font-weight: 700; cursor: pointer; white-space: nowrap; flex-shrink: 0; }
+        .send-btn:hover { opacity: 0.9; }
+        .send-btn.sent { background: #e8f5e9; color: #2e7d32; pointer-events: none; }
+        .tab-panel { display: none; }
+        .tab-panel.active { display: block; }
+        .feed-share-section { padding: 28px 20px; text-align: center; }
+        .feed-share-section p { font-size: 14px; color: var(--text-secondary); margin-bottom: 18px; line-height: 1.6; }
+        .no-targets { padding: 40px 20px; text-align: center; color: var(--text-muted); font-size: 14px; }
+        .sent-row { background: #f0fdf4 !important; }
+    </style>
+</head>
+<body>
+
+<nav class="topbar">
+    <a class="topbar-brand" th:href="@{/feed(userId=${userId})}">RevConnect</a>
+    <div class="topbar-actions">
+        <a class="topbar-btn" th:href="@{/feed(userId=${userId})}">← Back</a>
+    </div>
+</nav>
+
+<div class="share-layout">
+
+    <div class="alert alert-success" th:if="${successMessage}" th:text="${successMessage}"></div>
+    <div class="alert alert-danger"  th:if="${errorMessage}"   th:text="${errorMessage}"></div>
+
+    <!-- Post Preview -->
+    <div class="preview-card" th:if="${post != null}">
+        <div class="preview-header">↗️ &nbsp;You are sharing this post</div>
+        <div class="post-snippet">
+            <div class="avatar-sm"
+                 th:text="${post.userName != null ? post.userName.substring(0,1) : 'U'}">U</div>
+            <div class="post-snippet-body">
+                <div class="post-snippet-author" th:text="${post.userName}">Author</div>
+                <div class="post-snippet-text"   th:text="${post.content}">Content…</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Caption -->
+    <div class="caption-card">
+        <label for="captionInput">✏️ Add a message (optional)</label>
+        <textarea id="captionInput" rows="2"
+                  placeholder="Write something to go with this post…"></textarea>
+    </div>
+
+    <!-- Share Options -->
+    <div class="options-card">
+        <div class="options-header">
+            <span class="options-title">Share with…</span>
+            <span style="font-size:13px;color:var(--text-muted);"
+      th:text="${targets != null ? targets.size() : 0} + ' people'">0 people</span>
+        </div>
+
+        <!-- Tabs -->
+        <div class="share-tabs">
+            <div class="share-tab active" id="tab-people" onclick="switchTab('people')">
+                👤 Send to Person
+            </div>
+            <div class="share-tab" id="tab-feed" onclick="switchTab('feed')">
+                📢 Share to Feed
+            </div>
+        </div>
+
+        <!-- Tab 1: Send to specific person -->
+        <div class="tab-panel active" id="panel-people">
+            <div class="people-search">
+                <span style="color:var(--text-muted);">🔍</span>
+                <input type="text" id="peopleSearch"
+                       placeholder="Search by name or username…"
+                       oninput="filterTargets(this.value)"/>
+            </div>
+
+            <div class="target-list" id="targetList">
+
+                <div class="no-targets" th:if="${targets == null or targets.isEmpty()}">
+                    <p>You have no followers or following yet.<br/>
+                        <a th:href="@{/users/search(userId=${userId})}">Find people to follow</a>
+                    </p>
+                </div>
+
+                <div class="target-row"
+                     th:each="target : ${targets}"
+                     th:id="'row-' + ${target.userId}"
+                     th:data-name="${target.displayName.toLowerCase() + ' ' + target.userName.toLowerCase()}">
+
+                    <div class="avatar-sm"
+                         th:if="${target.profilePic == null or target.profilePic.isEmpty()}"
+                         th:text="${target.userName.substring(0,1)}">U</div>
+                    <img class="avatar-sm" style="object-fit:cover;"
+                         th:if="${target.profilePic != null and !target.profilePic.isEmpty()}"
+                         th:src="${target.profilePic}" th:alt="${target.userName}"/>
+
+                    <div class="target-info">
+                        <div class="target-name" th:text="${target.displayName}">Name</div>
+                        <div class="target-handle">
+                            @<span th:text="${target.userName}">username</span>
+                            &nbsp;·&nbsp;
+                            <span class="target-badge"
+                                  th:classappend="${target.accountType == 'CREATOR'} ? 'badge-creator' :
+                                                  (${target.accountType == 'BUSINESS'} ? 'badge-business' : 'badge-personal')"
+                                  th:text="${target.accountType}">PERSONAL</span>
+                        </div>
+                    </div>
+
+                    <button type="button" class="send-btn"
+                            th:id="'sendbtn-' + ${target.userId}"
+                            th:onclick="'sendToUser(' + ${target.userId} + ')'">
+                        Send
+                    </button>
+
+                    <!-- Hidden form per recipient -->
+                    <form th:id="'form-' + ${target.userId}"
+                          th:action="@{/posts/{pid}/share-to/{rid}(pid=${post.postId},rid=${target.userId})}"
+                          method="post" style="display:none;">
+                        <input type="hidden" name="userId"     th:value="${userId}"/>
+                        <input type="hidden" name="caption"    th:id="'caption-' + ${target.userId}" value=""/>
+                        <input type="hidden" name="redirectTo" th:value="@{/feed(userId=${userId})}"/>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Tab 2: Share to feed -->
+        <div class="tab-panel" id="panel-feed">
+            <div class="feed-share-section">
+                <p>This will share the post on <strong>your own feed</strong>,
+                   visible to all your followers.</p>
+                <form th:action="@{/posts/{id}/share(id=${post.postId})}" method="post">
+                    <input type="hidden" name="userId"     th:value="${userId}"/>
+                    <input type="hidden" name="redirectTo" th:value="@{/feed(userId=${userId})}"/>
+                    <button type="submit" class="btn btn-primary" style="width:220px;">
+                        ↗️ Share to My Feed
+                    </button>
+                </form>
+            </div>
+        </div>
+
+    </div>
+
+    <div style="text-align:center;padding-bottom:20px;">
+        <a th:href="@{/feed(userId=${userId})}"
+           style="font-size:14px;color:var(--text-muted);">Cancel</a>
+    </div>
+
+</div>
+
+<script>
+function switchTab(name) {
+    document.querySelectorAll('.share-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('tab-'   + name).classList.add('active');
+    document.getElementById('panel-' + name).classList.add('active');
+}
+
+function filterTargets(query) {
+    const q = query.toLowerCase().trim();
+    document.querySelectorAll('.target-row').forEach(row => {
+        const name = row.dataset.name || '';
+        row.style.display = (!q || name.includes(q)) ? '' : 'none';
+    });
+}
+
+function sendToUser(recipientId) {
+    const caption = document.getElementById('captionInput').value.trim();
+    const captionField = document.getElementById('caption-' + recipientId);
+    if (captionField) captionField.value = caption;
+
+    const btn = document.getElementById('sendbtn-' + recipientId);
+    const row = document.getElementById('row-'     + recipientId);
+    if (btn) { btn.textContent = '✓ Sent!'; btn.classList.add('sent'); }
+    if (row) row.classList.add('sent-row');
+
+    setTimeout(() => {
+        document.getElementById('form-' + recipientId).submit();
+    }, 350);
+}
+</script>
+
+</body>
+</html>
